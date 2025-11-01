@@ -1,11 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
+const LoadingSpinner = ({ gifUrl }) => (
+  <div className="loading-overlay">
+    {gifUrl ? (
+      <img src={gifUrl} alt="AI is thinking..." className="loading-gif" />
+    ) : (
+      <div className="loading-fallback-spinner"></div>
+    )}
+    <p className="loading-text">Analyzing Code...</p>
+  </div>
+);
 
 export default function App() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingGif, setLoadingGif] = useState('');
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+
+  useEffect(() => {
+    if (loading) {
+      const fetchGif = async () => {
+        const giphyApiKey = "V4VZML7UAMIJsu7igPwuCVa2xKuyLkyW"; // IMPORTANT: Replace with your key
+        if (giphyApiKey === "V4VZML7UAMIJsu7igPwuCVa2xKuyLkyW") {
+          console.warn("GIPHY API Key is not set. Using a fallback spinner.");
+          return;
+        }
+        try {
+          const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${giphyApiKey}&tag=robot thinking computer&rating=g`);
+          const data = await response.json();
+          if (data.data.images?.original?.url) {
+            setLoadingGif(data.data.images.original.url);
+          }
+        } catch (err) {
+          console.error("Failed to fetch GIF from GIPHY:", err);
+        }
+      };
+      fetchGif();
+    } else {
+      setLoadingGif('');
+    }
+  }, [loading]);
 
   const handleFileChange = (event) => {
     setResults([]);
@@ -13,32 +49,17 @@ export default function App() {
     setSelectedFiles(Array.from(event.target.files));
   };
 
-  // --- Drag and Drop Handlers ---
-  const handleDragOver = (event) => {
-    event.preventDefault(); // This is necessary to allow a drop.
-  };
-
-  const handleDragEnter = (event) => {
-    event.preventDefault();
-    setIsDraggingOver(true);
-  };
-
-  const handleDragLeave = (event) => {
-    event.preventDefault();
-    setIsDraggingOver(false);
-  };
-
+  const handleDragOver = (event) => event.preventDefault();
+  const handleDragEnter = (event) => { event.preventDefault(); setIsDraggingOver(true); };
+  const handleDragLeave = (event) => { event.preventDefault(); setIsDraggingOver(false); };
   const handleDrop = (event) => {
     event.preventDefault();
     setIsDraggingOver(false);
     setResults([]);
     setError(null);
     const files = Array.from(event.dataTransfer.files);
-    if (files.length > 0) {
-      setSelectedFiles(files);
-    }
+    if (files.length > 0) setSelectedFiles(files);
   };
-  // --- End Drag and Drop Handlers ---
 
   const readFileAsText = (file) => {
     return new Promise((resolve, reject) => {
@@ -67,7 +88,10 @@ export default function App() {
       const response = await fetch("/api/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ files: filesToReview, model: "llama3.2:3b" }),
+        body: JSON.stringify({
+          files: filesToReview,
+          model: "qwen2.5:0.5b", // Changed from llama3.2:3b
+        }),
       });
       if (!response.ok) {
         const errData = await response.json().catch(() => ({ error: `Request failed with status: ${response.status}` }));
@@ -84,7 +108,9 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {loading && <LoadingSpinner gifUrl={loadingGif} />}
       <h1>CodeSight AI Review</h1>
+      
       <div className="input-area">
         <label
           htmlFor="file-upload"
@@ -94,19 +120,16 @@ export default function App() {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          {isDraggingOver
-            ? "Release to Drop Files"
-            : selectedFiles.length === 0
-            ? "Select Files or Drag & Drop Here"
-            : `${selectedFiles.length} file(s) selected`}
+          <span>
+            {isDraggingOver
+              ? "Release to Drop Files"
+              : selectedFiles.length === 0
+              ? "Select Files or Drag & Drop Here"
+              : `${selectedFiles.length} file(s) selected`}
+          </span>
         </label>
-        <input
-          id="file-upload"
-          type="file"
-          multiple
-          onChange={handleFileChange}
-          style={{ display: "none" }}
-        />
+        <input id="file-upload" type="file" multiple onChange={handleFileChange} style={{ display: 'none' }} />
+        
         {selectedFiles.length > 0 && (
           <ul className="file-list">
             {selectedFiles.map((file) => (
@@ -114,11 +137,14 @@ export default function App() {
             ))}
           </ul>
         )}
+        
         <button onClick={runReview} disabled={loading || selectedFiles.length === 0}>
           {loading ? "Analyzing..." : "Run Review"}
         </button>
       </div>
-      {error && <div className="error-box">Error: {error}</div>}
+
+      {error && <div className="error-box">{error}</div>}
+
       {results.length > 0 && (
         <div className="results-list">
           <h2>Review Results</h2>

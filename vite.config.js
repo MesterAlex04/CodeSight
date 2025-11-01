@@ -7,10 +7,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // This tells Vite to forward any request starting with /api
-      // to your backend server on port 3001.
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3002', // <--- CHANGE THIS LINE
         changeOrigin: true,
       },
     }

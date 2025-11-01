@@ -1,0 +1,43 @@
+{
+  "name": "haufe-hackathon",
+  "version": "0.1.0",
+  "private": true,
+  "description": "React frontend for a local-LLM powered code-reviewer",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "npm run dev",
+    "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,md,css}\"",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky install",
+    "precommit": "lint-staged",
+    "start:backend": "node ./server/index.js",
+    "review": "node ./scripts/run-review.js"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "axios": "^1.4.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "eslint": "^8.40.0",
+    "eslint-config-prettier": "^8.8.0",
+    "prettier": "^2.8.8",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.0",
+    "typescript": "^5.4.0",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  }
+}

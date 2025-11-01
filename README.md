@@ -1,0 +1,2 @@
+# CodeSight
+Haufe hackathon

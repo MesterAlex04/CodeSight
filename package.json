@@ -17,21 +17,24 @@
     "review": "node ./scripts/run-review.js"
   },
   "dependencies": {
+    "axios": "^1.4.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "axios": "^1.4.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "vite": "^5.0.0",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
     "@vitejs/plugin-react": "^4.0.0",
     "eslint": "^8.40.0",
     "eslint-config-prettier": "^8.8.0",
-    "prettier": "^2.8.8",
     "husky": "^8.0.3",
     "lint-staged": "^14.0.0",
+    "prettier": "^2.8.8",
     "typescript": "^5.4.0",
-    "@types/react": "^18.2.14",
-    "@types/react-dom": "^18.2.6"
+    "vite": "^5.0.0"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
